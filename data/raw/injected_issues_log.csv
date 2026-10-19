@@ -1,0 +1,20 @@
+IssueID,Table,RecordKey,Column,ExpectedRule,IssueType,Description,OriginalValue,InjectedValue,ExpectedAction
+ISS01,dim_location,LOC04,City,text_formatting,Inconsistent text,City stored in lower case with stray spaces,Pune, pune ,Corrected: trim and title-case
+ISS02,dim_location,LOC08,Region,region_country_mismatch,Inconsistent relationship,Region 'Europe' recorded for an Australian office,APAC,Europe,Corrected: Region derived from Country
+ISS03,fact_space_usage,SU0099,Headcount,missing_value,Missing value,Headcount left blank,1923,,"Imputed by interpolation, row flagged"
+ISS04,fact_space_usage,SU0070,Headcount,missing_value,Missing value,Headcount left blank,722,,"Imputed by interpolation, row flagged"
+ISS05,fact_space_usage,SU0097,AvgDailyOccupiedDesks,occupied_exceeds_desks,Inconsistent relationship,Occupied desks (1389) exceed desks available (1372),910,1389,"Value rejected, imputed by interpolation, row flagged"
+ISS06,fact_opex,OC1034,ActualCostINR,missing_value,Missing value,Actual cost left blank,2579241.43,,"Imputed by interpolation, row flagged"
+ISS07,fact_opex,OC0120,ActualCostINR,missing_value,Missing value,Actual cost left blank,347960.92,,"Imputed by interpolation, row flagged"
+ISS08,fact_opex,OC1368,ActualCostINR,negative_value,Negative cost,Cost recorded as negative,1086421.38,-1086421.38,"Value rejected, imputed by interpolation, row flagged"
+ISS09,fact_opex,OC0261,ActualCostINR,outlier_vs_budget,Outlier (decimal shift),Electricity cost 100x too large (decimal-point error),644738.84,64473884.0,"Value rejected (actual/budget > 3), imputed, row flagged"
+ISS10,fact_opex,OC0963,LocationID,orphan_foreign_key,Invalid ID,LocationID 'LOC99' does not exist in dim_location,LOC01,LOC99,Row quarantined; month/category cell gap-filled and flagged
+ISS11,fact_opex,OC0259,LocationID,text_formatting,Inconsistent ID format,LocationID in lower case with leading space,LOC04, loc04,Corrected: trim and upper-case
+ISS12,fact_opex,OC0788,MonthStart,date_not_month_start,Date not first of month,Month recorded as mid-month date,2025-11-01,2025-11-15,Corrected: normalised to first of month
+ISS13,fact_opex,OC0707,ALL,duplicate_exact,Exact duplicate row,Entire row repeated,1 row,2 identical rows,Removed: first copy kept
+ISS14,fact_opex,OC0646,OpexID,duplicate_conflict,"Duplicate key, conflicting values",Same OpexID appears twice with different costs,1489287.77,1712680.94,Both copies quarantined; cell gap-filled and flagged
+ISS15,fact_budget,BD0943,MonthStart,invalid_date,Invalid date,Month '2025-13-01' is not a valid date,2026-01-01,2025-13-01,Row quarantined; cell gap-filled and flagged
+ISS16,fact_budget,BD1193,ALL,duplicate_exact,Exact duplicate row,Entire row repeated,1 row,2 identical rows,Removed: first copy kept
+ISS17,fact_projects,PRJ010,DeadlineDate,date_order,Inconsistent dates,Deadline is before the start date,2026-01-07,2025-07-28,Row quarantined (cannot infer correct date)
+ISS18,fact_projects,PRJ015,PercentComplete,status_inconsistency,Inconsistent status,Status 'Completed' but PercentComplete is 60,100,60,Row quarantined (status or progress is wrong; cannot tell which)
+ISS19,fact_projects,PRJ019,BudgetINR,negative_value,Negative budget,Project budget recorded as negative,3480000.0,-3480000.0,Row quarantined

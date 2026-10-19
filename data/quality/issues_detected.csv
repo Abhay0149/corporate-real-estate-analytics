@@ -1,0 +1,20 @@
+Table,RecordKey,Column,Rule,Severity,Detail,Action
+dim_location,LOC04,City,text_formatting,Error,' pune ' -> 'Pune',Corrected
+dim_location,LOC08,Region,region_country_mismatch,Error,Australia: 'Europe' -> 'APAC',Corrected
+fact_budget,BD1193,ALL,duplicate_exact,Error,Identical row repeated,Removed
+fact_budget,BD0943,MonthStart,invalid_date,Error,'2025-13-01' is not a valid date,Quarantined
+fact_space_usage,SU0070,Headcount,missing_value,Error,Headcount is blank,Value missing (imputed later)
+fact_space_usage,SU0099,Headcount,missing_value,Error,Headcount is blank,Value missing (imputed later)
+fact_space_usage,SU0097,AvgDailyOccupiedDesks,occupied_exceeds_desks,Error,1389 occupied > 1372 desks,Value rejected (imputed later)
+fact_opex,OC0707,ALL,duplicate_exact,Error,Identical row repeated,Removed
+fact_opex,OC0646,OpexID,duplicate_conflict,Error,"Same key, different values",Quarantined (all copies)
+fact_opex,OC0259,LocationID,text_formatting,Error,' loc04' -> 'LOC04',Corrected
+fact_opex,OC0963,LocationID,orphan_foreign_key,Error,LocationID 'LOC99' not in dim_location,Quarantined
+fact_opex,OC0788,MonthStart,date_not_month_start,Error,2025-11-15 -> first of month,Corrected
+fact_opex,OC1368,ActualCostINR,negative_value,Error,"ActualCostINR = -1,086,421.38 is negative",Value rejected (imputed later)
+fact_opex,OC0120,ActualCostINR,missing_value,Error,ActualCostINR is blank,Value missing (imputed later)
+fact_opex,OC1034,ActualCostINR,missing_value,Error,ActualCostINR is blank,Value missing (imputed later)
+fact_opex,OC0261,ActualCostINR,outlier_vs_budget,Error,"Actual 64,473,884 is 94.2x budget (allowed 0.25-3.0x)",Value rejected (imputed later)
+fact_projects,PRJ019,BudgetINR,negative_value,Error,"BudgetINR = -3,480,000.00 is negative",Quarantined
+fact_projects,PRJ010,DeadlineDate,date_order,Error,Deadline is before start date,Quarantined
+fact_projects,PRJ015,Status,status_inconsistency,Error,Status 'Completed' conflicts with PercentComplete/CompletionDate,Quarantined

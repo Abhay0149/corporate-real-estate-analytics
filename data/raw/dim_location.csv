@@ -1,0 +1,13 @@
+LocationID,OfficeName,City,Country,Region,OwnershipType,FloorAreaM2,UsableAreaM2,Desks
+LOC01,Gurugram Regional Office,Gurugram,India,India,Leased,16500,13035,1372
+LOC02,Mumbai Business Hub,Mumbai,India,India,Leased,12800,9728,1081
+LOC03,Bengaluru Technology Centre,Bengaluru,India,India,Owned,24000,19200,1959
+LOC04,Pune Operations Campus, pune ,India,India,Owned,21000,17220,1688
+LOC05,Chennai Service Office,Chennai,India,India,Leased,7200,5328,579
+LOC06,Singapore Regional Office,Singapore,Singapore,APAC,Leased,5200,4004,455
+LOC07,Shanghai Engineering Office,Shanghai,China,APAC,Leased,9800,7644,813
+LOC08,Sydney Sales Office,Sydney,Australia,Europe,Leased,3400,2550,283
+LOC09,Erlangen Technology Centre,Erlangen,Germany,Europe,Owned,28000,22680,2160
+LOC10,Berlin Project Office,Berlin,Germany,Europe,Leased,8800,6776,706
+LOC11,Warsaw Shared Services,Warsaw,Poland,Europe,Leased,6400,4864,566
+LOC12,London Commercial Office,London,United Kingdom,Europe,Leased,4600,3404,378

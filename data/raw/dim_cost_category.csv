@@ -1,0 +1,6 @@
+CategoryID,CategoryName,CostGroup,Description
+CC01,Electricity,Utilities,Metered electricity consumption
+CC02,Water & Other Utilities,Utilities,"Water, sewage and other metered utilities"
+CC03,Maintenance,Maintenance,Planned and reactive building maintenance
+CC04,Facility Management,Facility Services,"Cleaning, reception, helpdesk and soft services"
+CC05,Security,Facility Services,"Guarding, CCTV monitoring and access control"

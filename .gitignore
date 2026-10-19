@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Generated local SQLite database (rebuildable from clean CSVs)
+sql/cre_synthetic.sqlite

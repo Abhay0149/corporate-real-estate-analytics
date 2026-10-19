@@ -1,0 +1,292 @@
+// =====================================================================
+// Corporate Real Estate Portfolio & Workplace Performance Analytics
+// Phase 3 | DAX measures.  ALL DATA IS SYNTHETIC (invented offices/figures).
+//
+// STATUS: syntax-reviewed on macOS (tests/lint_dax_m.py: structure, names,
+// column references). NOT executed in Power BI / DAX Studio yet. Run the
+// checklist in tests/dax_validation_checklist.md on Windows (or another
+// supported environment) before relying on any number.
+//
+// Model expected (see docs/powerquery_setup.md):
+//   dim_location 1--* fact_space_usage / fact_opex / fact_budget / fact_projects
+//   dim_date (MonthStart) 1--* fact_space_usage / fact_opex / fact_budget
+//   dim_cost_category 1--* fact_opex / fact_budget
+//   param_AsOfDate and _Measures: no relationships.
+// All relationships single-direction (dimension -> fact), many-to-one.
+//
+// Usage: paste into Power BI Desktop > DAX query view, then "Update model
+// with changes"; or create each measure on table _Measures by hand.
+//
+// Aggregation rules (docs/data_dictionary.md): ratio of sums; snapshot KPIs
+// count each office once; rate KPIs use area-months / desk-months taken from
+// fact_space_usage (it has no relationship to dim_cost_category, so a category
+// filter changes the numerator only - rule 4).  Positive variance = overspend.
+// =====================================================================
+
+DEFINE
+// ---------------------------------------------------------------------
+// 1. SPACE - snapshot (each office once, via dim_location)
+// ---------------------------------------------------------------------
+MEASURE _Measures[Offices] =
+    DISTINCTCOUNT ( dim_location[LocationID] )
+
+MEASURE _Measures[Total Floor Area m2] =
+    SUM ( dim_location[FloorAreaM2] )
+
+MEASURE _Measures[Total Usable Area m2] =
+    SUM ( dim_location[UsableAreaM2] )
+
+MEASURE _Measures[Total Desks] =
+    SUM ( dim_location[Desks] )
+
+MEASURE _Measures[Usable Area Ratio] =
+    DIVIDE ( [Total Usable Area m2], [Total Floor Area m2] )
+
+MEASURE _Measures[Floor Area per Desk m2] =
+    DIVIDE ( [Total Floor Area m2], [Total Desks] )
+
+// ---------------------------------------------------------------------
+// 2. SPACE - rate denominators (office-months from fact_space_usage)
+// ---------------------------------------------------------------------
+MEASURE _Measures[Area-Months m2] =
+    SUMX ( fact_space_usage, RELATED ( dim_location[FloorAreaM2] ) )
+
+MEASURE _Measures[Usable Area-Months m2] =
+    SUMX ( fact_space_usage, RELATED ( dim_location[UsableAreaM2] ) )
+
+MEASURE _Measures[Desk-Months] =
+    SUMX ( fact_space_usage, RELATED ( dim_location[Desks] ) )
+
+MEASURE _Measures[Occupied Desk-Months] =
+    SUM ( fact_space_usage[AvgDailyOccupiedDesks] )
+
+MEASURE _Measures[Headcount-Months] =
+    SUM ( fact_space_usage[Headcount] )
+
+MEASURE _Measures[Desk Utilisation %] =
+    DIVIDE ( [Occupied Desk-Months], [Desk-Months] )
+
+MEASURE _Measures[Desk Assignment Ratio] =
+    DIVIDE ( [Headcount-Months], [Desk-Months] )
+
+MEASURE _Measures[Usable Area per Employee m2] =
+    DIVIDE ( [Usable Area-Months m2], [Headcount-Months] )
+
+// ---------------------------------------------------------------------
+// 3. OPERATING COST
+// ---------------------------------------------------------------------
+MEASURE _Measures[Actual Opex INR] =
+    SUM ( fact_opex[ActualCostINR] )
+
+MEASURE _Measures[Budget INR] =
+    SUM ( fact_budget[BudgetINR] )
+
+MEASURE _Measures[Budget Variance INR] =
+    [Actual Opex INR] - [Budget INR]
+
+MEASURE _Measures[Budget Variance %] =
+    DIVIDE ( [Actual Opex INR] - [Budget INR], [Budget INR] )
+
+MEASURE _Measures[Opex per m2 per Month INR] =
+    DIVIDE ( [Actual Opex INR], [Area-Months m2] )
+
+MEASURE _Measures[Opex per Employee per Month INR] =
+    DIVIDE ( [Actual Opex INR], [Headcount-Months] )
+
+MEASURE _Measures[Opex per Occupied Desk per Month INR] =
+    DIVIDE ( [Actual Opex INR], [Occupied Desk-Months] )
+
+// ---------------------------------------------------------------------
+// 4. ELECTRICITY AND UTILITIES
+//    kWh is not split by category, so cost-side measures ignore any
+//    category / cost-group slicer and are pinned to CC01 (Electricity).
+// ---------------------------------------------------------------------
+MEASURE _Measures[Electricity kWh] =
+    SUM ( fact_space_usage[ElectricityKWh] )
+
+MEASURE _Measures[Electricity Intensity kWh per m2 per Month] =
+    DIVIDE ( [Electricity kWh], [Area-Months m2] )
+
+MEASURE _Measures[Electricity Cost INR] =
+    CALCULATE (
+        [Actual Opex INR],
+        REMOVEFILTERS ( dim_cost_category ),
+        dim_cost_category[CategoryID] = "CC01"
+    )
+
+MEASURE _Measures[Electricity Budget INR] =
+    CALCULATE (
+        [Budget INR],
+        REMOVEFILTERS ( dim_cost_category ),
+        dim_cost_category[CategoryID] = "CC01"
+    )
+
+MEASURE _Measures[Electricity Variance %] =
+    DIVIDE ( [Electricity Cost INR] - [Electricity Budget INR], [Electricity Budget INR] )
+
+MEASURE _Measures[Implied Electricity Tariff INR per kWh] =
+    DIVIDE ( [Electricity Cost INR], [Electricity kWh] )
+
+MEASURE _Measures[Utilities Cost INR] =
+    CALCULATE (
+        [Actual Opex INR],
+        REMOVEFILTERS ( dim_cost_category ),
+        dim_cost_category[CostGroup] = "Utilities"
+    )
+
+MEASURE _Measures[Utilities Share %] =
+    DIVIDE (
+        [Utilities Cost INR],
+        CALCULATE ( [Actual Opex INR], REMOVEFILTERS ( dim_cost_category ) )
+    )
+
+// ---------------------------------------------------------------------
+// 5. TIME COMPARISONS (work for one month or any set of months)
+//    A comparison is returned only when EVERY selected month has a prior
+//    month in dim_date; otherwise BLANK. So YoY is only available for
+//    Oct 2025 - Sep 2026 selections, and a 24-month selection gives BLANK.
+// ---------------------------------------------------------------------
+MEASURE _Measures[Actual Opex INR Prior Month] =
+    VAR Cur = VALUES ( dim_date[MonthStart] )
+    VAR Shifted = SELECTCOLUMNS ( Cur, "MonthStart", EDATE ( dim_date[MonthStart], -1 ) )
+    VAR PriorFound =
+        CALCULATE ( COUNTROWS ( dim_date ), REMOVEFILTERS ( dim_date ), TREATAS ( Shifted, dim_date[MonthStart] ) )
+    RETURN
+        IF (
+            PriorFound = COUNTROWS ( Cur ),
+            CALCULATE ( [Actual Opex INR], REMOVEFILTERS ( dim_date ), TREATAS ( Shifted, dim_date[MonthStart] ) )
+        )
+
+MEASURE _Measures[Actual Opex INR Prior Year] =
+    VAR Cur = VALUES ( dim_date[MonthStart] )
+    VAR Shifted = SELECTCOLUMNS ( Cur, "MonthStart", EDATE ( dim_date[MonthStart], -12 ) )
+    VAR PriorFound =
+        CALCULATE ( COUNTROWS ( dim_date ), REMOVEFILTERS ( dim_date ), TREATAS ( Shifted, dim_date[MonthStart] ) )
+    RETURN
+        IF (
+            PriorFound = COUNTROWS ( Cur ),
+            CALCULATE ( [Actual Opex INR], REMOVEFILTERS ( dim_date ), TREATAS ( Shifted, dim_date[MonthStart] ) )
+        )
+
+MEASURE _Measures[Opex MoM %] =
+    DIVIDE ( [Actual Opex INR] - [Actual Opex INR Prior Month], [Actual Opex INR Prior Month] )
+
+MEASURE _Measures[Opex YoY %] =
+    DIVIDE ( [Actual Opex INR] - [Actual Opex INR Prior Year], [Actual Opex INR Prior Year] )
+
+// ---------------------------------------------------------------------
+// 6. PROJECTS (as-of date comes from param_AsOfDate, never today())
+// ---------------------------------------------------------------------
+MEASURE _Measures[As Of Date] =
+    MAX ( param_AsOfDate[AsOfDate] )
+
+MEASURE _Measures[Projects] =
+    COUNTROWS ( fact_projects ) + 0
+
+MEASURE _Measures[Overdue Projects] =
+    VAR AsOf = [As Of Date]
+    RETURN
+        COUNTROWS (
+            FILTER (
+                fact_projects,
+                fact_projects[Status] IN { "In Progress", "On Hold" }
+                    && fact_projects[DeadlineDate] < AsOf
+            )
+        ) + 0
+
+MEASURE _Measures[High Risk Projects] =
+    CALCULATE ( COUNTROWS ( fact_projects ), fact_projects[RiskLevel] = "High" ) + 0
+
+MEASURE _Measures[Project Budget INR] =
+    SUM ( fact_projects[BudgetINR] )
+
+MEASURE _Measures[Project Actual Cost INR] =
+    SUM ( fact_projects[ActualCostINR] )
+
+MEASURE _Measures[Project Budget Consumed %] =
+    DIVIDE ( [Project Actual Cost INR], [Project Budget INR] )
+
+MEASURE _Measures[Completed Project Budget Variance INR] =
+    CALCULATE ( SUM ( fact_projects[ActualCostINR] ), fact_projects[Status] = "Completed" )
+        - CALCULATE ( SUM ( fact_projects[BudgetINR] ), fact_projects[Status] = "Completed" )
+
+// Cost-vs-progress index = sum(actual) / sum(budget x pct complete).
+// For one project this is (actual/budget)/(pct/100); for many projects it is
+// budget-weighted, never an average of project indices. Not Started excluded.
+// > 1 means spending ahead of progress; it is NOT the same as over budget.
+MEASURE _Measures[Cost vs Progress Index] =
+    VAR Active = FILTER ( fact_projects, fact_projects[Status] <> "Not Started" )
+    VAR Spent = SUMX ( Active, fact_projects[ActualCostINR] )
+    VAR Earned = SUMX ( Active, fact_projects[BudgetINR] * fact_projects[PercentComplete] / 100 )
+    RETURN
+        DIVIDE ( Spent, Earned )
+
+MEASURE _Measures[Avg Days Late Completed] =
+    AVERAGEX (
+        FILTER ( fact_projects, fact_projects[Status] = "Completed" ),
+        DATEDIFF ( fact_projects[DeadlineDate], fact_projects[CompletionDate], DAY )
+    )
+
+MEASURE _Measures[Max Days Overdue] =
+    VAR AsOf = [As Of Date]
+    RETURN
+        MAXX (
+            FILTER (
+                fact_projects,
+                fact_projects[Status] IN { "In Progress", "On Hold" }
+                    && fact_projects[DeadlineDate] < AsOf
+            ),
+            DATEDIFF ( fact_projects[DeadlineDate], AsOf, DAY )
+        )
+
+// Recomputes the dictionary risk rule per project and counts stored RiskLevel
+// values that disagree. Expected result on this synthetic data: 0.
+MEASURE _Measures[Risk Rule Mismatches] =
+    VAR AsOf = [As Of Date]
+    RETURN
+        SUMX (
+            fact_projects,
+            VAR IsOverdue =
+                fact_projects[Status] IN { "In Progress", "On Hold" }
+                    && fact_projects[DeadlineDate] < AsOf
+            VAR CostRatio = DIVIDE ( fact_projects[ActualCostINR], fact_projects[BudgetINR] )
+            VAR Idx =
+                IF (
+                    fact_projects[Status] = "Completed",
+                    CostRatio,
+                    IF (
+                        fact_projects[PercentComplete] > 0,
+                        DIVIDE ( CostRatio, fact_projects[PercentComplete] / 100 ),
+                        0
+                    )
+                )
+            VAR RuleRisk =
+                IF (
+                    IsOverdue || Idx > 1.15,
+                    "High",
+                    IF ( Idx > 1.05 || fact_projects[Status] = "On Hold", "Medium", "Low" )
+                )
+            RETURN
+                IF ( RuleRisk <> fact_projects[RiskLevel], 1, 0 )
+        )
+
+// ---------------------------------------------------------------------
+// 7. DATA QUALITY
+// ---------------------------------------------------------------------
+MEASURE _Measures[Imputed Rows % Space Usage] =
+    DIVIDE (
+        CALCULATE ( COUNTROWS ( fact_space_usage ), fact_space_usage[DataQualityFlag] = "Imputed" ),
+        COUNTROWS ( fact_space_usage )
+    )
+
+MEASURE _Measures[Imputed Rows % Opex] =
+    DIVIDE (
+        CALCULATE ( COUNTROWS ( fact_opex ), fact_opex[DataQualityFlag] = "Imputed" ),
+        COUNTROWS ( fact_opex )
+    )
+
+MEASURE _Measures[Imputed Rows % Budget] =
+    DIVIDE (
+        CALCULATE ( COUNTROWS ( fact_budget ), fact_budget[DataQualityFlag] = "Imputed" ),
+        COUNTROWS ( fact_budget )
+    )

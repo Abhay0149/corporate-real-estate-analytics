@@ -1,0 +1,28 @@
+ProjectID,LocationID,ProjectName,ProjectType,OwnerName,StartDate,DeadlineDate,CompletionDate,BudgetINR,ActualCostINR,PercentComplete,Status,RiskLevel
+PRJ001,LOC04,Meeting Room Refresh - Pune,Meeting Room Refresh,Ananya Rao,2024-10-04,2025-02-25,,3380000.0,2356000.0,62,In Progress,High
+PRJ002,LOC02,Meeting Room Refresh - Mumbai,Meeting Room Refresh,Ananya Rao,2024-10-23,2025-04-30,,4150000.0,3305000.0,63,In Progress,High
+PRJ003,LOC09,Space Reconfiguration - Erlangen,Space Reconfiguration,Tomasz Nowak,2024-10-29,2025-04-21,2025-04-20,15470000.0,14118000.0,100,Completed,Low
+PRJ004,LOC07,Pantry Refurbishment - Shanghai,Pantry Refurbishment,Priya Menon,2024-12-05,2025-08-30,2025-09-11,2990000.0,3370000.0,100,Completed,Medium
+PRJ005,LOC03,LED Lighting Retrofit - Bengaluru,LED Lighting Retrofit,Ananya Rao,2025-01-27,2025-11-13,2025-11-19,5240000.0,5056000.0,100,Completed,Low
+PRJ006,LOC07,Smart Metering - Shanghai,Smart Metering,Wei Lin,2025-02-13,2025-07-17,2025-08-21,2970000.0,3590000.0,100,Completed,High
+PRJ007,LOC04,Pantry Refurbishment - Pune,Pantry Refurbishment,Karan Malhotra,2025-03-22,2025-06-28,2025-08-04,1420000.0,1425000.0,100,Completed,Low
+PRJ008,LOC10,Fire Safety Compliance - Berlin,Fire Safety Compliance,Clara Jensen,2025-03-28,2025-10-15,,8330000.0,7804000.0,79,On Hold,High
+PRJ009,LOC10,Access Control Upgrade - Berlin,Access Control Upgrade,Clara Jensen,2025-05-04,2025-10-22,2025-10-19,3310000.0,4076000.0,100,Completed,High
+PRJ011,LOC02,Access Control Upgrade - Mumbai,Access Control Upgrade,Rohan Iyer,2025-09-14,2026-06-16,2026-07-27,4080000.0,3801000.0,100,Completed,Low
+PRJ012,LOC02,Space Reconfiguration - Mumbai,Space Reconfiguration,Rohan Iyer,2025-10-20,2026-06-07,2026-06-03,9980000.0,9483000.0,100,Completed,Low
+PRJ013,LOC05,Fire Safety Compliance - Chennai,Fire Safety Compliance,Meera Nair,2025-11-02,2026-08-11,2026-09-25,8720000.0,8449000.0,100,Completed,Low
+PRJ014,LOC11,HVAC Upgrade - Warsaw,HVAC Upgrade,Lena Fischer,2025-11-19,2026-03-29,2026-05-08,20630000.0,19574000.0,100,Completed,Low
+PRJ016,LOC04,HVAC Upgrade - Pune,HVAC Upgrade,Ananya Rao,2025-12-01,2026-06-29,,25370000.0,22732000.0,70,In Progress,High
+PRJ017,LOC07,Pantry Refurbishment - Shanghai (Phase 2),Pantry Refurbishment,Wei Lin,2026-01-31,2026-07-26,2026-07-25,2620000.0,2560000.0,100,Completed,Low
+PRJ018,LOC02,Meeting Room Refresh - Mumbai (Phase 2),Meeting Room Refresh,Meera Nair,2026-02-21,2026-08-28,,5960000.0,5698000.0,74,On Hold,High
+PRJ020,LOC06,Meeting Room Refresh - Singapore,Meeting Room Refresh,Priya Menon,2026-03-26,2026-10-11,,3570000.0,2464000.0,71,In Progress,Low
+PRJ021,LOC06,HVAC Upgrade - Singapore,HVAC Upgrade,Daniel Foster,2026-04-12,2026-12-28,,30320000.0,27730000.0,82,In Progress,Medium
+PRJ022,LOC05,Fire Safety Compliance - Chennai (Phase 2),Fire Safety Compliance,Ananya Rao,2026-05-11,2026-11-07,,4100000.0,2689000.0,68,In Progress,Low
+PRJ023,LOC02,LED Lighting Retrofit - Mumbai,LED Lighting Retrofit,Meera Nair,2026-06-13,2026-10-06,,3950000.0,3261000.0,90,In Progress,Low
+PRJ024,LOC02,LED Lighting Retrofit - Mumbai (Phase 2),LED Lighting Retrofit,Karan Malhotra,2026-06-13,2026-12-07,,5610000.0,3275000.0,54,In Progress,Medium
+PRJ025,LOC02,Space Reconfiguration - Mumbai (Phase 2),Space Reconfiguration,Ananya Rao,2026-07-03,2026-11-12,,12210000.0,6514000.0,52,In Progress,Low
+PRJ026,LOC07,HVAC Upgrade - Shanghai,HVAC Upgrade,Daniel Foster,2026-07-03,2027-02-17,,49130000.0,23952000.0,42,In Progress,High
+PRJ027,LOC06,HVAC Upgrade - Singapore (Phase 2),HVAC Upgrade,Priya Menon,2026-07-20,2027-04-18,,34560000.0,6842000.0,19,In Progress,Low
+PRJ028,LOC06,Fire Safety Compliance - Singapore,Fire Safety Compliance,Daniel Foster,2026-07-30,2027-02-02,,10260000.0,1788000.0,17,In Progress,Low
+PRJ029,LOC05,Meeting Room Refresh - Chennai,Meeting Room Refresh,Karan Malhotra,2026-08-31,2027-03-23,,3520000.0,211000.0,5,In Progress,High
+PRJ030,LOC11,Pantry Refurbishment - Warsaw,Pantry Refurbishment,Tomasz Nowak,2026-09-22,2027-04-30,,1910000.0,364000.0,19,On Hold,Medium
